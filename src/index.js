@@ -4,14 +4,13 @@ import { fastify } from "fastify";
 import fastifyStatic from "fastify-static";
 import path from "path";
 import { fileURLToPath } from "url";
+import { connectDB } from "./db.js";
 
 // ESM specific features
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = fastify();
-
-console.log(process.env.MONGO_URL);
 
 async function startApp() {
   try {
@@ -27,4 +26,6 @@ async function startApp() {
   }
 }
 
-startApp();
+connectDB().then(() => {
+  startApp();
+});
