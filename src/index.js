@@ -1,3 +1,5 @@
+// Import like this will load code and run immediately
+import "./env.js";
 import { fastify } from "fastify";
 import fastifyStatic from "fastify-static";
 import path from "path";
@@ -8,6 +10,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = fastify();
+
+console.log(process.env.MONGO_URL);
 
 async function startApp() {
   try {
