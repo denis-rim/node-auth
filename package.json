@@ -3,9 +3,15 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "nodemon src/index.js"
   },
   "author": "Denis Mazurchuk",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "fastify": "^3.21.3",
+    "fastify-static": "^4.2.3",
+    "prettier": "^2.4.1"
+  }
 }
