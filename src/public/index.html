@@ -38,14 +38,21 @@
         const registerForm = document.getElementById("register-form");
         registerForm.addEventListener("submit", async (e) => {
           e.preventDefault();
-
-          const values = Object.values(registerForm).reduce((obj, field) => {
-            if (field.name) {
-              obj[field.name] = field.value;
-            }
-            return obj;
-          }, {});
-          console.log(values);
+          try {
+            const values = Object.values(registerForm).reduce((obj, field) => {
+              if (field.name) {
+                obj[field.name] = field.value;
+              }
+              return obj;
+            }, {});
+            const res = await fetch("/api/register", {
+              method: "POST",
+              body: JSON.stringify(values),
+              headers: { "Content-type": "application/json; charset=UTF-8" },
+            });
+          } catch (e) {
+            console.error(e);
+          }
         });
       })();
     </script>

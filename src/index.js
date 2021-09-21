@@ -5,6 +5,7 @@ import fastifyStatic from "fastify-static";
 import path from "path";
 import { fileURLToPath } from "url";
 import { connectDB } from "./db.js";
+import { registerUser } from "./accounts/register.js";
 
 // ESM specific features
 const __filename = fileURLToPath(import.meta.url);
@@ -17,6 +18,14 @@ async function startApp() {
     // public folder and serve index.html
     app.register(fastifyStatic, {
       root: path.join(__dirname, "public"),
+    });
+
+    app.post("/api/register", {}, async (request, reply) => {
+      try {
+        await registerUser(request.body.email, request.body.password);
+      } catch (e) {
+        console.error(e);
+      }
     });
 
     await app.listen(3000);
