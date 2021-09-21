@@ -1,16 +1,24 @@
 import bcrypt from "bcryptjs";
+
 const { genSalt, hash } = bcrypt;
 
 export async function registerUser(email, password) {
-  // Generate salt
+  const { user } = await import("../user/user.js");
+
+  // generate salt
   const salt = await genSalt(10);
 
-  // Hash with salt
+  // hash with salt
   const hashedPassword = await hash(password, salt);
 
-  console.log(salt, hashedPassword);
-
   // Store in database
-
+  const result = await user.insertOne({
+    email: {
+      address: email,
+      verified: false,
+    },
+    password: hashedPassword,
+  });
   // Return user from database
+  return result.insertedId;
 }
