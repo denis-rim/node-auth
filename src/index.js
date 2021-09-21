@@ -6,6 +6,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { connectDB } from "./db.js";
 import { registerUser } from "./accounts/register.js";
+import { authorizeUser } from "./accounts/authorize.js";
 
 // ESM specific features
 const __filename = fileURLToPath(import.meta.url);
@@ -26,8 +27,19 @@ async function startApp() {
           request.body.email,
           request.body.password
         );
+      } catch (e) {
+        console.error(e);
+      }
+    });
 
-        console.log(userId);
+    app.post("/api/authorize", {}, async (request, reply) => {
+      try {
+        const userId = await authorizeUser(
+          request.body.email,
+          request.body.password
+        );
+
+        console.log(request.body.email, request.body.password);
       } catch (e) {
         console.error(e);
       }

@@ -54,6 +54,28 @@
             console.error(e);
           }
         });
+        const loginForm = document.getElementById("login-form");
+        // Wait for event
+        loginForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          try {
+            // get form values
+            const values = Object.values(loginForm).reduce((obj, field) => {
+              if (field.name) {
+                obj[field.name] = field.value;
+              }
+              return obj;
+            }, {});
+            // Submit form
+            const res = await fetch("/api/authorize", {
+              method: "POST",
+              body: JSON.stringify(values),
+              headers: { "Content-type": "application/json; charset=UTF-8" },
+            });
+          } catch (e) {
+            console.error(e);
+          }
+        });
       })();
     </script>
   </body>
