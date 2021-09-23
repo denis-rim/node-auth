@@ -15,7 +15,7 @@ export async function connectDB() {
     console.log("Connected to DB Success");
   } catch (e) {
     console.error(e);
-    // If there is a problem, close connection to db
+    // If there is a problem close connection to db
     await client.close();
   }
 }

@@ -34,12 +34,12 @@ async function startApp() {
 
     app.post("/api/authorize", {}, async (request, reply) => {
       try {
-        const userId = await authorizeUser(
+        const { isAuthorized, userId } = await authorizeUser(
           request.body.email,
           request.body.password
         );
 
-        console.log(request.body.email, request.body.password);
+        console.log(isAuthorized, userId);
       } catch (e) {
         console.error(e);
       }
