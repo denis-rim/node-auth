@@ -15,7 +15,7 @@ export async function logUserIn(userId, request, reply) {
   );
   // Set cookie
   const now = new Date();
-  const refreshExpires = now.setDate(now.getDate + 30);
+  const refreshExpires = now.setDate(now.getDate() + 30);
 
   reply
     .setCookie("refreshToken", refreshToken, {
