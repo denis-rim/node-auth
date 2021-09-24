@@ -2,11 +2,13 @@
 import "./env.js";
 import { fastify } from "fastify";
 import fastifyStatic from "fastify-static";
+import fastifyCookie from "fastify-cookie";
 import path from "path";
 import { fileURLToPath } from "url";
 import { connectDB } from "./db.js";
 import { registerUser } from "./accounts/register.js";
 import { authorizeUser } from "./accounts/authorize.js";
+import { logUserIn } from "./accounts/logUserIn.js";
 
 // ESM specific features
 const __filename = fileURLToPath(import.meta.url);
@@ -16,6 +18,10 @@ const app = fastify();
 
 async function startApp() {
   try {
+    app.register(fastifyCookie, {
+      secret: process.env.COOKIE_SIGNATURE,
+    });
+
     // public folder and serve index.html
     app.register(fastifyStatic, {
       root: path.join(__dirname, "public"),
@@ -39,10 +45,32 @@ async function startApp() {
           request.body.password
         );
 
-        console.log(isAuthorized, userId);
+        if (isAuthorized) {
+          await logUserIn(userId, request, reply);
+        }
+
+        // Generate auth token
+
+        // Set cookies
+        reply
+          .setCookie("testCookie", "the value is this", {
+            path: "/",
+            domain: "localhost",
+            httpOnly: true,
+          })
+          .send({
+            data: "test",
+          });
       } catch (e) {
         console.error(e);
       }
+    });
+
+    app.get("/test", {}, (request, reply) => {
+      console.log(request.headers["user-agent"]);
+      reply.send({
+        data: "hello test",
+      });
     });
 
     await app.listen(3000);
