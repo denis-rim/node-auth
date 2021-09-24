@@ -5,6 +5,7 @@ import fastifyStatic from "fastify-static";
 import fastifyCookie from "fastify-cookie";
 import path from "path";
 import { fileURLToPath } from "url";
+import { getUserFromCookies } from "./accounts/user.js";
 import { connectDB } from "./db.js";
 import { registerUser } from "./accounts/register.js";
 import { authorizeUser } from "./accounts/authorize.js";
@@ -47,7 +48,7 @@ async function startApp() {
 
         if (isAuthorized) {
           await logUserIn(userId, request, reply);
-          return reply.send({
+          reply.send({
             data: "User Logged In",
           });
         }
@@ -60,11 +61,23 @@ async function startApp() {
       }
     });
 
-    app.get("/test", {}, (request, reply) => {
-      console.log(request.headers["user-agent"]);
-      reply.send({
-        data: "hello test",
-      });
+    app.get("/test", {}, async (request, reply) => {
+      try {
+        // Verify user login
+        const user = await getUserFromCookies(request, reply);
+        // Return user email, if it exists, otherwise return unauthorized
+        if (user?._id) {
+          reply.send({
+            data: user,
+          });
+        } else {
+          reply.send({
+            data: "User Lookup Failed",
+          });
+        }
+      } catch (e) {
+        throw new Error(e);
+      }
     });
 
     await app.listen(3000);
