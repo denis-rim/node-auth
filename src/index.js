@@ -5,6 +5,7 @@ import fastifyStatic from "fastify-static";
 import fastifyCookie from "fastify-cookie";
 import path from "path";
 import { fileURLToPath } from "url";
+import { logUserOut } from "./accounts/logUserOut.js";
 import { getUserFromCookies } from "./accounts/user.js";
 import { connectDB } from "./db.js";
 import { registerUser } from "./accounts/register.js";
@@ -58,6 +59,25 @@ async function startApp() {
         });
       } catch (e) {
         console.error(e);
+      }
+    });
+
+    app.post("/api/logout", {}, async (request, reply) => {
+      try {
+        await logUserOut(request, reply);
+        reply.send({
+          data: {
+            status: "LOGOUT SUCCESS",
+          },
+        });
+      } catch (e) {
+        console.error(e);
+        reply.send({
+          data: {
+            status: "LOGOUT FAILED",
+            // userId,
+          },
+        });
       }
     });
 

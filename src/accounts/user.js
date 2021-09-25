@@ -14,7 +14,7 @@ export async function getUserFromCookies(request, reply) {
     if (request?.cookies?.accessToken) {
       // If access token exist
       const { accessToken } = request.cookies;
-      // Decode decode access token
+      // Decode access token
       const decodedAccessToken = jwt.verify(accessToken, JWTSignature);
       // Return user from record
       return user.findOne({
