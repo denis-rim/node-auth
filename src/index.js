@@ -35,8 +35,23 @@ async function startApp() {
           request.body.email,
           request.body.password
         );
+
+        if (userId) {
+          await logUserIn(userId, request, reply);
+          reply.send({
+            data: {
+              status: "SUCCESS",
+              userId,
+            },
+          });
+        }
       } catch (e) {
         console.error(e);
+        reply.send({
+          data: {
+            status: "FAILED",
+          },
+        });
       }
     });
 
@@ -50,15 +65,19 @@ async function startApp() {
         if (isAuthorized) {
           await logUserIn(userId, request, reply);
           reply.send({
-            data: "User Logged In",
+            data: {
+              status: "SUCCESS",
+              userId,
+            },
           });
         }
-
-        reply.send({
-          data: "Auth Failed",
-        });
       } catch (e) {
         console.error(e);
+        reply.send({
+          data: {
+            status: "FAILED",
+          },
+        });
       }
     });
 
@@ -67,15 +86,14 @@ async function startApp() {
         await logUserOut(request, reply);
         reply.send({
           data: {
-            status: "LOGOUT SUCCESS",
+            status: "SUCCESS",
           },
         });
       } catch (e) {
         console.error(e);
         reply.send({
           data: {
-            status: "LOGOUT FAILED",
-            // userId,
+            status: "FAILED",
           },
         });
       }
