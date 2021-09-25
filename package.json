@@ -17,7 +17,8 @@
     "fastify-cors": "^6.0.2",
     "fastify-static": "^4.2.3",
     "jsonwebtoken": "^8.5.1",
-    "mongodb": "^4.1.2"
+    "mongodb": "^4.1.2",
+    "nodemailer": "^6.6.5"
   },
   "devDependencies": {
     "prettier": "^2.4.1"

@@ -12,6 +12,7 @@ import { connectDB } from "./db.js";
 import { registerUser } from "./accounts/register.js";
 import { authorizeUser } from "./accounts/authorize.js";
 import { logUserIn } from "./accounts/logUserIn.js";
+import { mailInit, sendEmail } from "./mail/index.js";
 
 // ESM specific features
 const __filename = fileURLToPath(import.meta.url);
@@ -21,6 +22,11 @@ const app = fastify();
 
 async function startApp() {
   try {
+    await mailInit();
+    await sendEmail({
+      subject: "Ne mail",
+      html: "<h2>New HTML</h2>",
+    });
     app.register(fastifyCors, {
       origin: [/\.nodeauth.dev/, "https://nodeauth.dev"],
       credentials: true,
