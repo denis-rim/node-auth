@@ -11,7 +11,7 @@ export async function logUserOut(request, reply) {
       // Decode access token
       const { sessionToken } = jwt.verify(refreshToken, JWTSignature);
       // Delete database record for session
-      await session.deleteOne({ sessionToken });
+      const res = await session.deleteOne({ sessionToken });
     }
     // Remove cookies
     reply.clearCookie("refreshToken").clearCookie("accessToken");
