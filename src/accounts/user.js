@@ -62,12 +62,14 @@ export async function refreshTokens(sessionToken, userId, reply) {
         path: "/",
         domain: "localhost",
         httpOnly: true,
+        secure: true,
         expires: refreshExpires,
       })
       .setCookie("accessToken", accessToken, {
         path: "/",
         domain: "localhost",
         httpOnly: true,
+        secure: true,
       });
   } catch (e) {
     console.error(e);
