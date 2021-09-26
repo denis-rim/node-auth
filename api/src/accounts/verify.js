@@ -24,3 +24,32 @@ export async function createVerifyEmailLink(email) {
     console.error(e);
   }
 }
+
+export async function validateVerifyEmail(token, email) {
+  try {
+    // Create a hash aka token
+    const emailToken = await createVerifyEmailToken(email);
+    // Compare hash with token
+    const isValid = emailToken === token;
+    // If successful, update user, to make them verified
+    if (isValid) {
+      // Update user to make them verified
+      const { user } = await import("../user/user.js");
+      await user.updateOne(
+        {
+          "email.address": email,
+        },
+        {
+          $set: { "email.verified": true },
+        }
+      );
+      // Return success
+      return true;
+    }
+    // Return failed
+    return false;
+  } catch (e) {
+    console.error(e);
+    return false;
+  }
+}

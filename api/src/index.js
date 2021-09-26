@@ -13,7 +13,10 @@ import { registerUser } from "./accounts/register.js";
 import { authorizeUser } from "./accounts/authorize.js";
 import { logUserIn } from "./accounts/logUserIn.js";
 import { mailInit, sendEmail } from "./mail/index.js";
-import { createVerifyEmailLink } from "./accounts/verify.js";
+import {
+  createVerifyEmailLink,
+  validateVerifyEmail,
+} from "./accounts/verify.js";
 
 // ESM specific features
 const __filename = fileURLToPath(import.meta.url);
@@ -114,6 +117,22 @@ async function startApp() {
             status: "FAILED",
           },
         });
+      }
+    });
+
+    app.post("/api/verify", {}, async (request, reply) => {
+      try {
+        const { token, email } = request.body;
+
+        const isValid = await validateVerifyEmail(token, email);
+
+        if (isValid) {
+          return reply.code(200).send();
+        }
+        return reply.code(401).send();
+      } catch (e) {
+        console.error(e);
+        return reply.code(401).send();
       }
     });
 

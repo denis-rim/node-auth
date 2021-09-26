@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "cross-fetch": "^3.1.4",
     "fastify": "^3.21.6",
     "fastify-static": "^4.2.3",
     "nodemon": "^2.0.13"
