@@ -13,6 +13,7 @@ import { registerUser } from "./accounts/register.js";
 import { authorizeUser } from "./accounts/authorize.js";
 import { logUserIn } from "./accounts/logUserIn.js";
 import { mailInit, sendEmail } from "./mail/index.js";
+import { createVerifyEmailLink } from "./accounts/verify.js";
 
 // ESM specific features
 const __filename = fileURLToPath(import.meta.url);
@@ -23,10 +24,6 @@ const app = fastify();
 async function startApp() {
   try {
     await mailInit();
-    await sendEmail({
-      subject: "Ne mail",
-      html: "<h2>New HTML</h2>",
-    });
     app.register(fastifyCors, {
       origin: [/\.nodeauth.dev/, "https://nodeauth.dev"],
       credentials: true,
@@ -47,8 +44,17 @@ async function startApp() {
           request.body.email,
           request.body.password
         );
-
+        // If account creation was successful
         if (userId) {
+          // Create verification email link
+          const emailLink = await createVerifyEmailLink(request.body.email);
+          // Send verification email
+          await sendEmail({
+            to: request.body.email,
+            subject: "Verify email",
+            html: `<h2>Verify your email</h2> <a href="${emailLink}">verify</a>`,
+          });
+
           await logUserIn(userId, request, reply);
           reply.send({
             data: {

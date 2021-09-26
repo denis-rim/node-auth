@@ -5,6 +5,7 @@ import { createTokens } from "./tokens.js";
 const { ObjectId } = mongo;
 
 const JWTSignature = process.env.JWT_SIGNATURE;
+
 const { ROOT_DOMAIN } = process.env;
 
 export async function getUserFromCookies(request, reply) {
