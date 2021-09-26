@@ -1,0 +1,18 @@
+{
+  "name": "ui",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon src/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "fastify": "^3.21.6",
+    "fastify-static": "^4.2.3",
+    "nodemon": "^2.0.13"
+  }
+}
