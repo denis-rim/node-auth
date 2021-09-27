@@ -59,6 +59,7 @@ async function startApp() {
           });
 
           await logUserIn(userId, request, reply);
+
           reply.send({
             data: {
               status: "SUCCESS",
@@ -85,6 +86,7 @@ async function startApp() {
 
         if (isAuthorized) {
           await logUserIn(userId, request, reply);
+
           reply.send({
             data: {
               status: "SUCCESS",
@@ -105,6 +107,7 @@ async function startApp() {
     app.post("/api/logout", {}, async (request, reply) => {
       try {
         await logUserOut(request, reply);
+
         reply.send({
           data: {
             status: "SUCCESS",
@@ -129,6 +132,7 @@ async function startApp() {
         if (isValid) {
           return reply.code(200).send();
         }
+
         return reply.code(401).send();
       } catch (e) {
         console.error(e);
@@ -157,6 +161,7 @@ async function startApp() {
             return reply.code(200).send("All Good");
           }
         }
+
         return reply.code(401).send();
       } catch (e) {
         console.error(e);

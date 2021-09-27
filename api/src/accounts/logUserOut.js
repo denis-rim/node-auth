@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 
-const JWTSignature = process.env.JWT_SIGNATURE;
+const { ROOT_DOMAIN, JWT_SIGNATURE } = process.env;
 
 export async function logUserOut(request, reply) {
   try {
@@ -9,12 +9,21 @@ export async function logUserOut(request, reply) {
     if (request?.cookies?.refreshToken) {
       const { refreshToken } = request.cookies;
       // Decode access token
-      const { sessionToken } = jwt.verify(refreshToken, JWTSignature);
+      const { sessionToken } = jwt.verify(refreshToken, JWT_SIGNATURE);
       // Delete database record for session
       const res = await session.deleteOne({ sessionToken });
     }
     // Remove cookies
-    reply.clearCookie("refreshToken").clearCookie("accessToken");
+    const cookieOptions = {
+      path: "/",
+      domain: ROOT_DOMAIN,
+      httpOnly: true,
+      secure: true,
+    };
+
+    reply
+      .clearCookie("refreshToken", cookieOptions)
+      .clearCookie("accessToken", cookieOptions);
   } catch (e) {
     console.error(e);
   }
