@@ -7,7 +7,7 @@ import fastifyCors from "fastify-cors";
 import path from "path";
 import { fileURLToPath } from "url";
 import { logUserOut } from "./accounts/logUserOut.js";
-import { getUserFromCookies } from "./accounts/user.js";
+import { changePassword, getUserFromCookies } from "./accounts/user.js";
 import { connectDB } from "./db.js";
 import { registerUser } from "./accounts/register.js";
 import { authorizeUser } from "./accounts/authorize.js";
@@ -128,6 +128,34 @@ async function startApp() {
 
         if (isValid) {
           return reply.code(200).send();
+        }
+        return reply.code(401).send();
+      } catch (e) {
+        console.error(e);
+        return reply.code(401).send();
+      }
+    });
+
+    app.post("/api/change-password", {}, async (request, reply) => {
+      try {
+        const { oldPassword, newPassword } = request.body;
+        // Verify user login
+        const user = await getUserFromCookies(request, reply);
+
+        if (user?.email?.address) {
+          // Compare current logged in user with form to re-auth
+          const { isAuthorized, userId } = await authorizeUser(
+            user.email.address,
+            oldPassword
+          );
+          console.log("isAuthorized, userId", isAuthorized, userId);
+          // If user is who they say they are
+          if (isAuthorized) {
+            // Update password in db
+            await changePassword(userId, newPassword);
+
+            return reply.code(200).send("All Good");
+          }
         }
         return reply.code(401).send();
       } catch (e) {
