@@ -7,6 +7,7 @@ import fastifyCors from "fastify-cors";
 import path from "path";
 import { fileURLToPath } from "url";
 import { logUserOut } from "./accounts/logUserOut.js";
+import { createResetLink } from "./accounts/reset.js";
 import { changePassword, getUserFromCookies } from "./accounts/user.js";
 import { connectDB } from "./db.js";
 import { registerUser } from "./accounts/register.js";
@@ -134,6 +135,27 @@ async function startApp() {
         }
 
         return reply.code(401).send();
+      } catch (e) {
+        console.error(e);
+        return reply.code(401).send();
+      }
+    });
+
+    app.post("/api/forgot-password", {}, async (request, reply) => {
+      try {
+        const { email } = request.body;
+        // Check to see if a user exist with that email and create reset link
+        const link = await createResetLink(email);
+        // If link exist send email with link
+        if (link) {
+          await sendEmail({
+            to: email,
+            subject: "Reset your password",
+            html: `</h2> <a href="${link}">Reset</a>`,
+          });
+        }
+
+        return reply.code(200).send("Email sent");
       } catch (e) {
         console.error(e);
         return reply.code(401).send();
