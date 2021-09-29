@@ -22,6 +22,8 @@ async function startApp() {
       reply.sendFile("reset.html")
     );
 
+    app.get("/2fa", {}, async (request, reply) => reply.sendFile("2fa.html"));
+
     app.get("/verify/:email/:token", {}, async (request, reply) => {
       try {
         const { email, token } = request.params;

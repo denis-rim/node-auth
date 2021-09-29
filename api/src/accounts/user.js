@@ -100,3 +100,21 @@ export async function changePassword(userId, newPassword) {
     console.error(e);
   }
 }
+
+export async function register2FA(userId, secret) {
+  try {
+    const { user } = await import("../user/user.js");
+
+    // Update user
+    return user.updateOne(
+      {
+        _id: userId,
+      },
+      {
+        $set: { authenticator: secret },
+      }
+    );
+  } catch (e) {
+    console.error(e);
+  }
+}

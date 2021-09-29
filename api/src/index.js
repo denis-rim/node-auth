@@ -1,5 +1,6 @@
 // Import like this will load code and run immediately
 import "./env.js";
+import { authenticator } from "@otplib/preset-default";
 import { fastify } from "fastify";
 import fastifyStatic from "fastify-static";
 import fastifyCookie from "fastify-cookie";
@@ -8,7 +9,11 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { logUserOut } from "./accounts/logUserOut.js";
 import { createResetLink, validateResetEmail } from "./accounts/reset.js";
-import { changePassword, getUserFromCookies } from "./accounts/user.js";
+import {
+  changePassword,
+  getUserFromCookies,
+  register2FA,
+} from "./accounts/user.js";
 import { connectDB } from "./db.js";
 import { registerUser } from "./accounts/register.js";
 import { authorizeUser } from "./accounts/authorize.js";
@@ -40,6 +45,59 @@ async function startApp() {
     // public folder and serve index.html
     app.register(fastifyStatic, {
       root: path.join(__dirname, "public"),
+    });
+
+    app.get("/api/user", {}, async (request, reply) => {
+      // Verify user login
+      const user = await getUserFromCookies(request, reply);
+
+      if (user) {
+        return reply.send({ data: user });
+      }
+
+      reply.send({});
+    });
+
+    app.post("/api/2fa-register", {}, async (request, reply) => {
+      // Verify user login
+      const user = await getUserFromCookies(request, reply);
+      const { token, secret } = request.body;
+
+      console.log("secret", secret);
+      console.log("token", token);
+
+      const isValid = authenticator.verify({ token, secret });
+
+      if (user._id && isValid) {
+        await register2FA(user._id, secret);
+
+        return reply.send("Success");
+      }
+
+      reply.code(401).send();
+    });
+
+    app.post("/api/2fa-verify", {}, async (request, reply) => {
+      const { token, email, password } = request.body;
+
+      const { isAuthorized, userId, authenticatorSecret } = await authorizeUser(
+        email,
+        password
+      );
+
+      const isValid = authenticator.verify({
+        token,
+        secret: authenticatorSecret,
+      });
+
+      if (userId && isValid && isAuthorized) {
+        console.log("userID, isValid, isAuthorized");
+        await logUserIn(userId, request, reply);
+
+        return reply.send("Success");
+      }
+
+      reply.code(401).send();
     });
 
     app.post("/api/register", {}, async (request, reply) => {
@@ -80,12 +138,10 @@ async function startApp() {
 
     app.post("/api/authorize", {}, async (request, reply) => {
       try {
-        const { isAuthorized, userId } = await authorizeUser(
-          request.body.email,
-          request.body.password
-        );
+        const { isAuthorized, userId, authenticatorSecret } =
+          await authorizeUser(request.body.email, request.body.password);
 
-        if (isAuthorized) {
+        if (isAuthorized && !authenticatorSecret) {
           await logUserIn(userId, request, reply);
 
           reply.send({
@@ -94,7 +150,15 @@ async function startApp() {
               userId,
             },
           });
+        } else if (isAuthorized && authenticatorSecret) {
+          reply.send({
+            data: {
+              status: "2FA",
+            },
+          });
         }
+
+        reply.code(401).send();
       } catch (e) {
         console.error(e);
         reply.send({
@@ -200,7 +264,6 @@ async function startApp() {
             user.email.address,
             oldPassword
           );
-          console.log("isAuthorized, userId", isAuthorized, userId);
           // If user is who they say they are
           if (isAuthorized) {
             // Update password in db
