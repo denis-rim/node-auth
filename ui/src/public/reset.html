@@ -43,12 +43,12 @@
             token,
           };
 
-          // const res = await fetch("https://api.nodeauth.dev/api/register", {
-          //   method: "POST",
-          //   body: JSON.stringify(values),
-          //   credentials: "include",
-          //   headers: { "Content-type": "application/json; charset=UTF-8" },
-          // });
+          const res = await fetch("https://api.nodeauth.dev/api/reset", {
+            method: "POST",
+            body: JSON.stringify(values),
+            credentials: "include",
+            headers: { "Content-type": "application/json; charset=UTF-8" },
+          });
         } catch (e) {
           console.error(e);
         }

@@ -7,7 +7,7 @@ import fastifyCors from "fastify-cors";
 import path from "path";
 import { fileURLToPath } from "url";
 import { logUserOut } from "./accounts/logUserOut.js";
-import { createResetLink } from "./accounts/reset.js";
+import { createResetLink, validateResetEmail } from "./accounts/reset.js";
 import { changePassword, getUserFromCookies } from "./accounts/user.js";
 import { connectDB } from "./db.js";
 import { registerUser } from "./accounts/register.js";
@@ -121,6 +121,32 @@ async function startApp() {
             status: "FAILED",
           },
         });
+      }
+    });
+
+    app.post("/api/reset", {}, async (request, reply) => {
+      try {
+        const { email, password, token, time } = request.body;
+
+        const isValid = await validateResetEmail(token, email, time);
+
+        if (isValid) {
+          // Find user
+          const { user } = await import("./user/user.js");
+          const foundUser = await user.findOne({
+            "email.address": email,
+          });
+          // Change password
+          if (foundUser._id) {
+            await changePassword(foundUser._id, password);
+            return reply.code(200).send("Password updated");
+          }
+        }
+
+        return reply.code(401).send("Reset failed");
+      } catch (e) {
+        console.error(e);
+        return reply.code(401).send();
       }
     });
 
